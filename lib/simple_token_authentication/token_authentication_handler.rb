@@ -16,7 +16,6 @@ module SimpleTokenAuthentication
       private_class_method :set_token_authentication_hooks
       private_class_method :entities_manager
       private_class_method :fallback_handler
-      private_class_method :define_store_option
 
       private :authenticate_entity_from_token!
       private :fallback!
@@ -59,8 +58,7 @@ module SimpleTokenAuthentication
       # identifier is not actually stored in the session and a token
       # is needed for every request. That behaviour can be configured
       # through the sign_in_token option.
-      store = self.class.class_variable_defined?(:@@store_option) ? self.class.class_variable_get(:@@store_option) : SimpleTokenAuthentication.sign_in_token
-      sign_in_handler.sign_in self, record, store: store
+      sign_in_handler.sign_in self, record, store: SimpleTokenAuthentication.sign_in_token
     end
 
     def find_record_from_identifier(entity)
@@ -104,7 +102,6 @@ module SimpleTokenAuthentication
         model_alias = options[:as] || options['as']
         entity = entities_manager.find_or_create_entity(model, model_alias)
         options = SimpleTokenAuthentication.parse_options(options)
-        define_store_option(options)
         define_token_authentication_helpers_for(entity, fallback_handler(options))
         set_token_authentication_hooks(entity, options)
       end
@@ -116,10 +113,6 @@ module SimpleTokenAuthentication
         else
           class_variable_set(:@@entities_manager, EntitiesManager.new)
         end
-      end
-
-      def define_store_option(options)
-        class_variable_set(:@@store_option, options[:store]) if options.key?(:store)
       end
 
       # Private: Get one (always the same) object which behaves as a fallback authentication handler
