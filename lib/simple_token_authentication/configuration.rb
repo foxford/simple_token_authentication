@@ -43,7 +43,6 @@ module SimpleTokenAuthentication
           options[:fallback] = SimpleTokenAuthentication.fallback
         end
       end
-
       options.reject! { |k,v| k == :fallback_to_devise }
       options
     end
